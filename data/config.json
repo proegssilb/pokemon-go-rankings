@@ -1,0 +1,27 @@
+{
+  "pokemonList": "https://github.com/billyvg/pokemon-journal/raw/master/app/api/pokemons.js",
+  "pokemonStats": "https://raw.githubusercontent.com/billyvg/pokemon-journal/master/app/api/baseStats.json",
+  "imgsPattern": "https://raw.githubusercontent.com/billyvg/pokemon-journal/master/app/images/{:03d}.png",
+  "tiers": {
+    "God Tier": {
+      "search": [{"field": "cp", "min": 2500}, {"field": "atk", "min": 210}],
+      "order": 0
+    },
+    "Tier 0": {
+      "search": [{"field": "cp", "min": 2500}],
+      "order": 0
+    },
+    "Tier 1": {
+      "search": [{"field": "cp", "max": 2500, "min": 2000}],
+      "order": 1
+    },
+    "Tier 2": {
+      "search": [{"field": "cp", "max": 2000, "min": 1000}],
+      "order": 2
+    },
+    "Tier No": {
+      "search": [{"field": "cp", "max": 1000}],
+      "order": 3
+    }
+  }
+}
