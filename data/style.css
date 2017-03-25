@@ -6,18 +6,36 @@
 .pokelist li {
   display: inline-block;
   vertical-align: top;
-  height: 135px;
-  width: 135px;
   margin-bottom: 15px;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.pokelist li .evop {
+  height: 42px;
+}
+
+.pokelist li .evo {
+  height: 40px;
+  width: 40px;
+}
+
+.pokelist li p {
+  margin-top: 1px;
+  margin-bottom: 1px;
 }
 
 .columns {
   columns: 2;
 }
 
-img {
-  position: relative;
-  top: 25px;
+.pokelist li .poke {
   width: 120px;
   height: 120px;
+}
+
+h1 {
+  margin-left: 100px;
+  margin-bottom: 5px;
+  margin-top: 20px;
 }

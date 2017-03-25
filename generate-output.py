@@ -33,12 +33,15 @@ def getPokemonStats(num, pokelist, pokedata, tiers):
     >>> pkd = [ { "AnimTime": "6d56d53fdaac2a3f6d56d53f93a9ea3f0000000036ab0a403333b33fbfbbbb3f", "AttackTimerS": 29, "BaseAttack": 118, "BaseCaptureRate": 0.1599999964237213, "BaseDefense": 118, "BaseFleeRate": 0.10000000149011612, "BaseStamina": 90, "CandyToEvolve": 25, "CinematicMoves": "5a3b76", "CollisionHeadRadiusM": 0.27250000834465027, "CollisionHeightM": 0.6539999842643738, "CollisionRadiusM": 0.3815000057220459, "Evolution": 2, "EvolutionPips": "HoloPokemonClass.POKEMON_CLASS_NORMAL", "FamilyId": "HoloPokemonFamilyId.V0001_FAMILY_BULBASAUR", "HeightStdDev": 0.08749999850988388, "JumpTimeS": 1.149999976158142, "MovementTimerS": 10, "MovementType": "HoloPokemonMovementType.POKEMON_ENC_MOVEMENT_JUMP", "id": 1, "PokedexHeightM": 0.699999988079071, "PokedexWeightKg": 6.900000095367432, "PokemonClass": 1, "QuickMoves": "d601dd01", "Type1": "HoloPokemonType.POKEMON_TYPE_GRASS", "Type2": "HoloPokemonType.POKEMON_TYPE_POISON", "WeightStdDev": 0.862500011920929 }, { "AnimTime": "36ab2a40daac2a3f6d56d53f36ab0a4000000000000000406d56d53fdbdddd3f", "AttackTimerS": 8, "BaseAttack": 151, "BaseCaptureRate": 0.07999999821186066, "BaseDefense": 151, "BaseFleeRate": 0.07000000029802322, "BaseStamina": 120, "CandyToEvolve": 100, "CinematicMoves": "5a7476", "CollisionHeadRadiusM": 0.2549999952316284, "CollisionHeightM": 0.637499988079071, "CollisionRadiusM": 0.3187499940395355, "Evolution": 3, "EvolutionPips": "HoloPokemonClass.POKEMON_CLASS_NORMAL", "FamilyId": "HoloPokemonFamilyId.V0001_FAMILY_BULBASAUR", "HeightStdDev": 0.125, "JumpTimeS": 1.5, "MovementTimerS": 23, "MovementType": "HoloPokemonMovementType.POKEMON_ENC_MOVEMENT_JUMP", "id": 2, "PokedexHeightM": 1, "PokedexWeightKg": 13, "PokemonClass": 1, "QuickMoves": "d701d601", "Type1": "HoloPokemonType.POKEMON_TYPE_GRASS", "Type2": "HoloPokemonType.POKEMON_TYPE_POISON", "WeightStdDev": 1.625 }]
     >>> tcfg = {'bogusTier1': {'order': 1, 'search': [{"field": "cp", "max": 1500, "min": 0}]}}
     >>> getPokemonStats(1, pkl, pkd, tcfg)
-    {'name': 'Bulbasaur', 'atk': 118, 'def': 118, '90', 'cp': 981, 'id': 1, 'tier': 'bogusTier1'}
+    {'name': 'Bulbasaur', 'atk': 118, 'def': 118, '90', 'cp': 981, 'id': 1, 'tier': 'bogusTier1', 'evolution': 2}
     """  # noqa
     pokeItem, pokeDatum = pokelist[num-1], pokedata[num-1]
-    if not pokeItem['id'] == str(num) and pokeDatum['id'] == num:
+    if 'Number' not in pokeItem:
+        print(num, pokeItem)
+    if not (int(pokeItem['Number']) == num and pokeDatum['id'] == num):
         print('Failed to load correct data.')
         print('pokelist entry:', pokeItem)
+        print()
         print('pokestats entry:', pokeDatum)
         exit()
     cpMultiplier = 0.7902  # Yes, it's arbitrary, but it seems to work.
@@ -46,8 +49,10 @@ def getPokemonStats(num, pokelist, pokedata, tiers):
     maxAtt = (15+pokeDatum['BaseAttack']) * cpMultiplier
     maxDef = (15+pokeDatum['BaseDefense']) * cpMultiplier
     maxCp = int((maxStam**0.5) * maxAtt * (maxDef**0.5)/10)
-    rv = {'name': pokeItem['name'], 'atk': pokeDatum['BaseAttack'],
-          'def': pokeDatum['BaseDefense'], 'cp': maxCp, 'id': pokeDatum['id']}
+    rv = {'name': pokeItem['Name'], 'atk': pokeDatum['BaseAttack'],
+          'def': pokeDatum['BaseDefense'], 'cp': maxCp, 'id': pokeDatum['id'],
+          'prevolution': pokeItem.get('Previous evolution(s)', [])}
+    rv['prevolution'] = [p['Number'] for p in rv['prevolution']]
     for tierName, tierData in tiers.items():
         for criteria in tierData['search']:
             fieldName = criteria['field']
@@ -80,14 +85,16 @@ async def getResource(url):
 
 async def main():
     config = demjson.decode_file('./data/config.json')
-    pokelist = await getResource(config['pokemonList'])
+    pokelist = demjson.decode_file('.\\data\\pokedex.json')
     pokedata = await getResource(config['pokemonStats'])
     mapfunc = partial(getPokemonStats, pokelist=pokelist, pokedata=pokedata,
                       tiers=config['tiers'])
-    rawStats = [mapfunc(i) for i in range(1, 252)]
+    rawStats = [mapfunc(i) for i in range(1, 251)]
+
     res = config['tiers'].copy()
     for tierName in res:
-        res[tierName] = list(filter(lambda p: p['tier'] == tierName, rawStats))
+        res[tierName] = list(filter(lambda p: p.get('tier', '') == tierName,
+                                    rawStats))
 
     tiersOrdered = [(tierData['order'], tierName) for (tierName, tierData) in
                     config['tiers'].items()]

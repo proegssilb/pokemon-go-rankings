@@ -1,5 +1,5 @@
 {
-  "pokemonList": "https://github.com/billyvg/pokemon-journal/raw/master/app/api/pokemons.js",
+  "pokemonList": "https://raw.githubusercontent.com/BrunnerLivio/PokemonDataGraber/master/output.json",
   "pokemonStats": "https://raw.githubusercontent.com/billyvg/pokemon-journal/master/app/api/baseStats.json",
   "imgsPattern": "https://raw.githubusercontent.com/billyvg/pokemon-journal/master/app/images/{:03d}.png",
   "tiers": {
