@@ -1,5 +1,6 @@
 .pokelist {
   margin: 0 auto;
+  padding-left: 0;
   text-align: center;
 }
 
@@ -26,7 +27,7 @@
 }
 
 .columns {
-  columns: 2;
+  columns: auto 670px;
 }
 
 .pokelist li .poke {
@@ -35,7 +36,7 @@
 }
 
 h1 {
-  margin-left: 100px;
   margin-bottom: 5px;
   margin-top: 20px;
+  page-break-after: avoid;
 }
