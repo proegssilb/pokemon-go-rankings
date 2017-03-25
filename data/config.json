@@ -4,10 +4,6 @@
   "imgsPattern": "https://raw.githubusercontent.com/billyvg/pokemon-journal/master/app/images/{:03d}.png",
   "tiers": {
     "God Tier": {
-      "search": [{"field": "cp", "min": 2500}, {"field": "atk", "min": 210}],
-      "order": 0
-    },
-    "Tier 0": {
       "search": [{"field": "cp", "min": 2500}],
       "order": 0
     },

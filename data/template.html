@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="data/style.css">
+    <title>Pokémon Go Tiers</title>
+  </head>
+  <body>
+    <div class="columns">
+      {% for _, tierName in tiersOrdered %}<h1>{{tierName}}</h1>
+      <ul class="pokelist">{% for pokemon in tierData[tierName] %}
+        <li>
+          <p><img src="data/images/{{ '{:03d}'.format(pokemon['id']) }}.png" alt="ico" height="120" width="120"></p>
+          <p>{{ pokemon['name'] }}</p>
+        </li>{% endfor %}
+      </ul>{% endfor %}
+    </div>
+  </body>
+</html>

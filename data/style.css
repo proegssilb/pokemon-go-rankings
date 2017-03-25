@@ -1,0 +1,23 @@
+.pokelist {
+  margin: 0 auto;
+  text-align: center;
+}
+
+.pokelist li {
+  display: inline-block;
+  vertical-align: top;
+  height: 135px;
+  width: 135px;
+  margin-bottom: 15px;
+}
+
+.columns {
+  columns: 2;
+}
+
+img {
+  position: relative;
+  top: 25px;
+  width: 120px;
+  height: 120px;
+}
