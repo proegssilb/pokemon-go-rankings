@@ -3,21 +3,35 @@
   "pokemonStats": "https://raw.githubusercontent.com/billyvg/pokemon-journal/master/app/api/baseStats.json",
   "imgsPattern": "https://raw.githubusercontent.com/billyvg/pokemon-journal/master/app/images/{:03d}.png",
   "tiers": {
-    "God Tier": {
-      "search": [{"field": "cp", "min": 2500}],
+    "Tier 3500 CP": {
+      "search": [{"field": "cp", "min": 3500}],
+      "sort": [{"field": "cp", "dir": "desc"}],
       "order": 0
     },
-    "Tier 1": {
-      "search": [{"field": "cp", "max": 2500, "min": 2000}],
+    "Tier 3000 CP": {
+      "search": [{"field": "cp", "max": 3500, "min": 3000}],
+      "sort": [{"field": "cp", "dir": "desc"}],
       "order": 1
     },
-    "Tier 2": {
-      "search": [{"field": "cp", "max": 2000, "min": 1000}],
+    "Tier 2500 CP": {
+      "search": [{"field": "cp", "max": 3000, "min": 2500}],
+      "sort": [{"field": "cp", "dir": "desc"}],
       "order": 2
     },
-    "Tier No": {
-      "search": [{"field": "cp", "max": 1000}],
+    "Tier 2000 CP": {
+      "search": [{"field": "cp", "max": 2500, "min": 2000}],
+      "sort": [{"field": "cp", "dir": "desc"}],
       "order": 3
+    },
+    "Tier 1500 CP": {
+      "search": [{"field": "cp", "max": 2000, "min": 1500}],
+      "sort": [{"field": "cp", "dir": "desc"}],
+      "order": 4
+    },
+    "Tier No": {
+      "search": [{"field": "cp", "max": 1500}],
+      "sort": [{"field": "cp", "dir": "desc"}],
+      "order": 5
     }
   }
 }

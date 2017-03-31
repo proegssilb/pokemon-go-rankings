@@ -35,8 +35,8 @@
   height: 120px;
 }
 
-h1 {
+h1:nth-child(n+2) {
   margin-bottom: 5px;
   margin-top: 20px;
-  page-break-after: avoid;
+  page-break-before: always;
 }

@@ -6,6 +6,7 @@ import atexit
 import demjson
 import os.path
 from functools import partial
+from operator import itemgetter
 from pprint import pprint
 import jinja2
 
@@ -44,13 +45,15 @@ def getPokemonStats(num, pokelist, pokedata, tiers):
         print()
         print('pokestats entry:', pokeDatum)
         exit()
-    cpMultiplier = 0.7902  # Yes, it's arbitrary, but it seems to work.
+    # CPM Source: https://github.com/mathiasbynens/pogocpm2level/blob/master/pogocpm2level/cpm2level.py  # noqa
+    cpMultiplier = 0.79030001
     maxStam = (15+pokeDatum['BaseStamina']) * cpMultiplier
     maxAtt = (15+pokeDatum['BaseAttack']) * cpMultiplier
     maxDef = (15+pokeDatum['BaseDefense']) * cpMultiplier
     maxCp = int((maxStam**0.5) * maxAtt * (maxDef**0.5)/10)
     rv = {'name': pokeItem['Name'], 'atk': pokeDatum['BaseAttack'],
-          'def': pokeDatum['BaseDefense'], 'cp': maxCp, 'id': pokeDatum['id'],
+          'stam': pokeDatum['BaseStamina'], 'def': pokeDatum['BaseDefense'],
+          'cp': maxCp, 'id': pokeDatum['id'],
           'prevolution': pokeItem.get('Previous evolution(s)', [])}
     rv['prevolution'] = [p['Number'] for p in rv['prevolution']]
     for tierName, tierData in tiers.items():
@@ -93,8 +96,12 @@ async def main():
 
     res = config['tiers'].copy()
     for tierName in res:
-        res[tierName] = list(filter(lambda p: p.get('tier', '') == tierName,
-                                    rawStats))
+        iterable = filter(lambda p: p.get('tier', '') == tierName, rawStats)
+        for sortInfo in config['tiers'][tierName]['sort']:
+            keyfunc = itemgetter(sortInfo['field'])
+            rev = sortInfo['dir'] == 'desc'
+            iterable = sorted(iterable, key=keyfunc, reverse=rev)
+        res[tierName] = list(iterable)
 
     tiersOrdered = [(tierData['order'], tierName) for (tierName, tierData) in
                     config['tiers'].items()]
