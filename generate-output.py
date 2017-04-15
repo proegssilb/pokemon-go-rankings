@@ -16,46 +16,38 @@ session = aiohttp.ClientSession(loop=loop)
 atexit.register(lambda: session.close())
 
 
-def getPokemonStats(num, pokelist, pokedata, tiers):
+def getPokemonStats(num, pokedata, tiers, imgUrl):
     """Calculate the ranking data.
 
     Data returned includes (as a dictionary):
     - max attack/defense/stam/cp
     - tier placement
     - name
+    - previous evolutions
+    - image URL
 
     Arguments:
     num -- The pokemon number relevant. 1-251.
-    pokelist -- Deserialized contents of URL named 'pokemonList'
-    pokedata -- Deserialized contents of URL named 'pokemonStats'
+    pokedata -- Deserialized JSON from pokemongo-data-normalizer
     tiers -- The tier config, as from config.json.
-
-    >>> pkl = [{ id: '1', num: '001', name: 'Bulbasaur', img: 'http://www.serebii.net/pokemongo/pokemon/001.png', type: 'Grass / Poison', height: '0.71 m', weight: '6.9 kg', candy: '25 Bulbasaur Candy', egg: '2 km' }, { id: '2', num: '002', name: 'Ivysaur', img: 'http://www.serebii.net/pokemongo/pokemon/002.png', type: 'Grass / Poison', height: '0.99 m', weight: '13.0 kg', candy: '100 Bulbasaur Candy', egg: 'Not in Eggs' }]
-    >>> pkd = [ { "AnimTime": "6d56d53fdaac2a3f6d56d53f93a9ea3f0000000036ab0a403333b33fbfbbbb3f", "AttackTimerS": 29, "BaseAttack": 118, "BaseCaptureRate": 0.1599999964237213, "BaseDefense": 118, "BaseFleeRate": 0.10000000149011612, "BaseStamina": 90, "CandyToEvolve": 25, "CinematicMoves": "5a3b76", "CollisionHeadRadiusM": 0.27250000834465027, "CollisionHeightM": 0.6539999842643738, "CollisionRadiusM": 0.3815000057220459, "Evolution": 2, "EvolutionPips": "HoloPokemonClass.POKEMON_CLASS_NORMAL", "FamilyId": "HoloPokemonFamilyId.V0001_FAMILY_BULBASAUR", "HeightStdDev": 0.08749999850988388, "JumpTimeS": 1.149999976158142, "MovementTimerS": 10, "MovementType": "HoloPokemonMovementType.POKEMON_ENC_MOVEMENT_JUMP", "id": 1, "PokedexHeightM": 0.699999988079071, "PokedexWeightKg": 6.900000095367432, "PokemonClass": 1, "QuickMoves": "d601dd01", "Type1": "HoloPokemonType.POKEMON_TYPE_GRASS", "Type2": "HoloPokemonType.POKEMON_TYPE_POISON", "WeightStdDev": 0.862500011920929 }, { "AnimTime": "36ab2a40daac2a3f6d56d53f36ab0a4000000000000000406d56d53fdbdddd3f", "AttackTimerS": 8, "BaseAttack": 151, "BaseCaptureRate": 0.07999999821186066, "BaseDefense": 151, "BaseFleeRate": 0.07000000029802322, "BaseStamina": 120, "CandyToEvolve": 100, "CinematicMoves": "5a7476", "CollisionHeadRadiusM": 0.2549999952316284, "CollisionHeightM": 0.637499988079071, "CollisionRadiusM": 0.3187499940395355, "Evolution": 3, "EvolutionPips": "HoloPokemonClass.POKEMON_CLASS_NORMAL", "FamilyId": "HoloPokemonFamilyId.V0001_FAMILY_BULBASAUR", "HeightStdDev": 0.125, "JumpTimeS": 1.5, "MovementTimerS": 23, "MovementType": "HoloPokemonMovementType.POKEMON_ENC_MOVEMENT_JUMP", "id": 2, "PokedexHeightM": 1, "PokedexWeightKg": 13, "PokemonClass": 1, "QuickMoves": "d701d601", "Type1": "HoloPokemonType.POKEMON_TYPE_GRASS", "Type2": "HoloPokemonType.POKEMON_TYPE_POISON", "WeightStdDev": 1.625 }]
-    >>> tcfg = {'bogusTier1': {'order': 1, 'search': [{"field": "cp", "max": 1500, "min": 0}]}}
-    >>> getPokemonStats(1, pkl, pkd, tcfg)
-    {'name': 'Bulbasaur', 'atk': 118, 'def': 118, '90', 'cp': 981, 'id': 1, 'tier': 'bogusTier1', 'evolution': 2}
     """  # noqa
-    pokeItem, pokeDatum = pokelist[num-1], pokedata[num-1]
-    if 'Number' not in pokeItem:
-        print(num, pokeItem)
-    if not (int(pokeItem['Number']) == num and pokeDatum['id'] == num):
-        print('Failed to load correct data.')
-        print('pokelist entry:', pokeItem)
-        print()
-        print('pokestats entry:', pokeDatum)
-        exit()
+    pokeDatum = pokedata[num-1]
     # CPM Source: https://github.com/mathiasbynens/pogocpm2level/blob/master/pogocpm2level/cpm2level.py  # noqa
     cpMultiplier = 0.79030001
-    maxStam = (15+pokeDatum['BaseStamina']) * cpMultiplier
-    maxAtt = (15+pokeDatum['BaseAttack']) * cpMultiplier
-    maxDef = (15+pokeDatum['BaseDefense']) * cpMultiplier
+    maxStam = (15+pokeDatum['stats']['baseStamina']) * cpMultiplier
+    maxAtt = (15+pokeDatum['stats']['baseAttack']) * cpMultiplier
+    maxDef = (15+pokeDatum['stats']['baseDefense']) * cpMultiplier
     maxCp = int((maxStam**0.5) * maxAtt * (maxDef**0.5)/10)
-    rv = {'name': pokeItem['Name'], 'atk': pokeDatum['BaseAttack'],
-          'stam': pokeDatum['BaseStamina'], 'def': pokeDatum['BaseDefense'],
-          'cp': maxCp, 'id': pokeDatum['id'],
-          'prevolution': pokeItem.get('Previous evolution(s)', [])}
-    rv['prevolution'] = [p['Number'] for p in rv['prevolution']]
+    rv = {'name': pokeDatum['name'], 'atk': pokeDatum['stats']['baseAttack'],
+          'stam': pokeDatum['stats']['baseStamina'],
+          'def': pokeDatum['stats']['baseDefense'], 'cp': maxCp,
+          'id': pokeDatum['id'], 'num': num, 'imgUrl': imgUrl.format(num),
+          'prevolution': pokeDatum.get('pastEvolutions', []),
+          'rarity': pokeDatum.get('rarity', {'name': 'Common'})['name']}
+    for idx, prevo in enumerate(rv['prevolution']):
+        fil = filter(lambda p: p[1]['id'] == prevo['id'], enumerate(pokedata))
+        num, prevo = list(fil)[0]
+        rv['prevolution'][idx] = num+1
     for tierName, tierData in tiers.items():
         for criteria in tierData['search']:
             fieldName = criteria['field']
@@ -86,18 +78,22 @@ async def getResource(url):
             return await response.text()
 
 
+def calcStats(config, pokedata):
+    mapfunc = partial(getPokemonStats, pokedata=pokedata,
+                      tiers=config['tiers'], imgUrl=config['imgsPattern'])
+    rawStats = [mapfunc(i) for i in range(1, 251)]
+    return rawStats
+
+
 async def main():
     config = demjson.decode_file('./data/config.json')
-    pokelist = demjson.decode_file('.\\data\\pokedex.json')
     pokedata = await getResource(config['pokemonStats'])
-    mapfunc = partial(getPokemonStats, pokelist=pokelist, pokedata=pokedata,
-                      tiers=config['tiers'])
-    rawStats = [mapfunc(i) for i in range(1, 251)]
+    rawStats = calcStats(config, pokedata)
 
     res = config['tiers'].copy()
     for tierName in res:
         iterable = filter(lambda p: p.get('tier', '') == tierName, rawStats)
-        for sortInfo in config['tiers'][tierName]['sort']:
+        for sortInfo in reversed(config['tiers'][tierName]['sort']):
             keyfunc = itemgetter(sortInfo['field'])
             rev = sortInfo['dir'] == 'desc'
             iterable = sorted(iterable, key=keyfunc, reverse=rev)
@@ -112,9 +108,10 @@ async def main():
         autoescape=True
     )
     template = env.get_template('template.html')
-    with open('pokemon-go-tiers.html', 'w', encoding='utf-8') as outputFile:
+    with open('index.html', 'w', encoding='utf-8') as outputFile:
         outputFile.write(template.render(tiersOrdered=tiersOrdered,
-                                         tierData=res))
+                                         tierData=res,
+                                         config=config))
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()

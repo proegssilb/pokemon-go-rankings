@@ -40,3 +40,8 @@ h1:nth-child(n+2) {
   margin-top: 20px;
   page-break-before: always;
 }
+
+li.Mythic,
+li.Legendary {
+  opacity: .5;
+}
