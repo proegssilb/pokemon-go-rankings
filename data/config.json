@@ -2,6 +2,14 @@
   "pokemonStats": "https://raw.githubusercontent.com/BrunnerLivio/pokemongo-data-normalizer/master/output/pokemon.json",
   "imgsPattern": "data/images/{}.png",
   "tiers": {
+  "Top Attackers": {
+      "search": [{"field": "atk", "min": 240}],
+      "sort": [
+        {"field": "rarity", "dir": "asc"},
+        {"field": "atk", "dir": "desc"}
+      ],
+      "order": 0
+    },
     "Tier 3000 CP": {
       "search": [{"field": "cp", "min": 3000}],
       "sort": [
