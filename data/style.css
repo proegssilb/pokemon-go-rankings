@@ -7,41 +7,75 @@
 .pokelist li {
   display: inline-block;
   vertical-align: top;
-  margin-bottom: 15px;
-  margin-left: 5px;
-  margin-right: 5px;
-}
-
-.pokelist li .evop {
-  height: 42px;
-}
-
-.pokelist li .evo {
-  height: 40px;
-  width: 40px;
+  margin-bottom: 1rem;
+  margin-left: 0.313rem;
+  margin-right: 0.313rem;
 }
 
 .pokelist li p {
-  margin-top: 1px;
-  margin-bottom: 1px;
+  position: relative;
+}
+
+.evo0 {
+	left: .05rem;
+  position: absolute;
+	bottom: 0.05rem;
+}
+
+.evo1 {
+	right: 0.05rem;
+  position: absolute;
+	bottom: 0.05rem;
+}
+
+.pokelist li .evo {
+  height: 3.125rem;
+  width: 3.125rem;
+}
+
+.pokelist li p {
+  margin-top: 0.063rem;
+  margin-bottom: 0.063rem;
 }
 
 .columns {
-  columns: auto 670px;
+  columns: auto 41.875rem;
 }
 
 .pokelist li .poke {
-  width: 120px;
-  height: 120px;
+  width: 7.5rem;
+  height: 7.5rem;
 }
 
 h1:nth-child(n+2) {
-  margin-bottom: 5px;
-  margin-top: 20px;
+  margin-bottom: 0.313rem;
+  margin-top: 1.25rem;
   page-break-before: always;
 }
 
-li.Mythic,
-li.Legendary {
+li.Mythic{
   opacity: .5;
+}
+
+/* Meters */
+p.meters {
+  font-size: .5rem;
+}
+
+p.meters span.pos {
+  display: inline-block;
+  position: relative;
+  background-color: #00DD00;
+  height: .6rem;
+  /* top: -.025rem; */
+  left: 0rem;
+  text-align: center;
+}
+
+p.meters span.neg {
+  display: inline-block;
+  background-color: #999999;
+  height: .6rem;
+  width: 6.5rem;
+  text-align: left;
 }

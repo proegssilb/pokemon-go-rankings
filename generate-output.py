@@ -5,7 +5,7 @@ import aiohttp
 import atexit
 import demjson
 import os.path
-from functools import partial
+from functools import partial, reduce
 from operator import itemgetter
 from pprint import pprint
 import jinja2
@@ -82,13 +82,16 @@ def calcStats(config, pokedata):
     mapfunc = partial(getPokemonStats, pokedata=pokedata,
                       tiers=config['tiers'], imgUrl=config['imgsPattern'])
     rawStats = [mapfunc(i) for i in range(1, 251)]
-    return rawStats
+    maxStam = reduce(lambda x, y: max(x, y['stam']), rawStats, 0)
+    maxAtk = reduce(lambda x, y: max(x, y['atk']), rawStats, 0)
+    maxDef = reduce(lambda x, y: max(x, y['def']), rawStats, 0)
+    return rawStats, maxStam, maxAtk, maxDef
 
 
 async def main():
     config = demjson.decode_file('./data/config.json')
     pokedata = await getResource(config['pokemonStats'])
-    rawStats = calcStats(config, pokedata)
+    rawStats, maxStam, maxAtk, maxDef = calcStats(config, pokedata)
 
     res = config['tiers'].copy()
     for tierName in res:
@@ -107,11 +110,13 @@ async def main():
         loader=jinja2.FileSystemLoader(os.path.join(os.path.curdir, 'data')),
         autoescape=True
     )
+    statLimits = {'atk': maxAtk, 'def': maxAtk, 'stam': maxStam}
     template = env.get_template('template.html')
     with open('index.html', 'w', encoding='utf-8') as outputFile:
         outputFile.write(template.render(tiersOrdered=tiersOrdered,
                                          tierData=res,
-                                         config=config))
+                                         config=config,
+                                         statLimits=statLimits))
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()

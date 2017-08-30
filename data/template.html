@@ -10,9 +10,22 @@
       {% for _, tierName in tiersOrdered %}<h1>{{tierName}}</h1>
       <ul class="pokelist">{% for pokemon in tierData[tierName] %}
         <li class="{{ pokemon['rarity'] }}">
-          <p><img class="poke" src="{{ pokemon['imgUrl'] }}" alt="ico" height="120" width="120"></p>
-          <p class="evop">{% for prevo in pokemon['prevolution'] %}
-            <img class="evo" src="{{ config['imgsPattern'].format(prevo) }}" alt="ico">{% endfor %}
+          <p class="img">
+            <img class="poke" src="{{ pokemon['imgUrl'] }}" alt="ico" height="120" width="120">{% for prevo in pokemon['prevolution'] %}
+            <img class="evo evo{{pokemon['prevolution'].index(prevo)}}" src="{{ config['imgsPattern'].format(prevo) }}" alt="ico">{% endfor %}
+          </p>
+          <p class="meters">
+            A: <span class="neg">
+              <span class="pos" style="width: {{pokemon['atk']*6.5/statLimits['atk']}}rem;">{{pokemon['atk']}}</span>
+            </span>
+            <br>
+            D: <span class="neg">
+              <span class="pos" style="width: {{pokemon['def']*6.5/statLimits['def']}}rem;">{{pokemon['def']}}</span>
+            </span>
+            <br>
+            H: <span class="neg">
+              <span class="pos" style="width: {{pokemon['stam']*6.5/statLimits['stam']}}rem;">{{pokemon['stam']}}</span>
+            </span>
           </p>
           <p>{{ pokemon['name'] }}</p>
         </li>{% endfor %}
