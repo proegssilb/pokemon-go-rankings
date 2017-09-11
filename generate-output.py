@@ -38,10 +38,14 @@ def getPokemonStats(num, pokedata, tiers, imgUrl):
     maxAtt = (15+pokeDatum['stats']['baseAttack']) * cpMultiplier
     maxDef = (15+pokeDatum['stats']['baseDefense']) * cpMultiplier
     maxCp = int((maxStam**0.5) * maxAtt * (maxDef**0.5)/10)
-    rv = {'name': pokeDatum['name'], 'atk': pokeDatum['stats']['baseAttack'],
+    rv = {'name': pokeDatum['name'],
+          'atk': pokeDatum['stats']['baseAttack'],
           'stam': pokeDatum['stats']['baseStamina'],
-          'def': pokeDatum['stats']['baseDefense'], 'cp': maxCp,
-          'id': pokeDatum['id'], 'num': num, 'imgUrl': imgUrl.format(num),
+          'def': pokeDatum['stats']['baseDefense'],
+          'cp': maxCp,
+          'id': pokeDatum['id'],
+          'num': num,
+          'imgUrl': imgUrl.format(num),
           'prevolution': pokeDatum.get('pastEvolutions', []),
           'rarity': pokeDatum.get('rarity', {'name': 'Common'})['name']}
     for idx, prevo in enumerate(rv['prevolution']):
@@ -83,8 +87,8 @@ def calcStats(config, pokedata):
                       tiers=config['tiers'], imgUrl=config['imgsPattern'])
     rawStats = [mapfunc(i) for i in range(1, 251)]
     maxStam = reduce(lambda x, y: max(x, y['stam']), rawStats, 0)
-    maxAtk = reduce(lambda x, y: max(x, y['atk']), rawStats, 0)
     maxDef = reduce(lambda x, y: max(x, y['def']), rawStats, 0)
+    maxAtk = reduce(lambda x, y: max(x, y['atk']), rawStats, 0)
     return rawStats, maxStam, maxAtk, maxDef
 
 
@@ -110,7 +114,7 @@ async def main():
         loader=jinja2.FileSystemLoader(os.path.join(os.path.curdir, 'data')),
         autoescape=True
     )
-    statLimits = {'atk': maxAtk, 'def': maxAtk, 'stam': maxStam}
+    statLimits = {'atk': maxAtk, 'def': maxDef, 'stam': maxStam}
     template = env.get_template('template.html')
     with open('index.html', 'w', encoding='utf-8') as outputFile:
         outputFile.write(template.render(tiersOrdered=tiersOrdered,
